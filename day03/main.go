@@ -20,11 +20,19 @@ func main() {
 
 	part1Answer := part1(uintInput, len(rows[0]))
 	log.Printf("Part 1 answer: %d", part1Answer)
+
+	part2Answer := part2(rows)
+	log.Printf("Part 2 answer: %d", part2Answer)
 }
 
 func part1(input []uint32, lengthInit int) int {
 	p := part1Power(input, lengthInit)
 	return int(p.epsilon) * int(p.gamma)
+}
+
+func part2(input []string) int {
+	l := part2LifeSupport(input)
+	return l.oxygen * l.co2
 }
 
 type power struct {
@@ -53,6 +61,95 @@ func part1Power(input []uint32, lengthInit int) power {
 		}
 	}
 	return p
+}
+
+type lifeSupport struct {
+	oxygen, co2 int
+}
+
+func part2LifeSupport(input []string) lifeSupport {
+	return lifeSupport{
+		oxygen: oxygen(input),
+		co2:    co2(input),
+	}
+}
+
+func oxygen(input []string) int {
+	inputCopy := make([]string, len(input))
+	copy(inputCopy, input)
+
+	for i := 0; i < len(inputCopy[0]); i++ {
+		var zeroCount, oneCount int
+		for _, in := range inputCopy {
+			if in[i] == '0' {
+				zeroCount++
+			}
+			if in[i] == '1' {
+				oneCount++
+			}
+		}
+
+		keep := []string{}
+		for _, in := range inputCopy {
+			if oneCount >= zeroCount {
+				if in[i] == '1' {
+					keep = append(keep, in)
+				}
+			} else {
+				if in[i] == '0' {
+					keep = append(keep, in)
+				}
+			}
+		}
+		inputCopy = keep
+		if len(inputCopy) == 1 {
+			oxygen, err := strconv.ParseInt(inputCopy[0], 2, 64)
+			if err != nil {
+				log.Fatalf("Failed to convert oxygen string to int: %v", err)
+			}
+			return int(oxygen)
+		}
+	}
+	return 0
+}
+
+func co2(input []string) int {
+	inputCopy := make([]string, len(input))
+	copy(inputCopy, input)
+
+	for i := 0; i < len(inputCopy[0]); i++ {
+		var zeroCount, oneCount int
+		for _, in := range inputCopy {
+			if in[i] == '0' {
+				zeroCount++
+			}
+			if in[i] == '1' {
+				oneCount++
+			}
+		}
+
+		keep := []string{}
+		for _, in := range inputCopy {
+			if oneCount >= zeroCount {
+				if in[i] == '0' {
+					keep = append(keep, in)
+				}
+			} else {
+				if in[i] == '1' {
+					keep = append(keep, in)
+				}
+			}
+		}
+		inputCopy = keep
+		if len(inputCopy) == 1 {
+			oxygen, err := strconv.ParseInt(inputCopy[0], 2, 64)
+			if err != nil {
+				log.Fatalf("Failed to convert oxygen string to int: %v", err)
+			}
+			return int(oxygen)
+		}
+	}
+	return 0
 }
 
 func stringsToUint32(strings []string) ([]uint32, error) {
