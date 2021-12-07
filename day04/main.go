@@ -27,6 +27,9 @@ func main() {
 	part1Answer := part1(calledNums, rows[2:])
 	log.Printf("Answer to part 1: %d", part1Answer)
 
+	part2Answer := part2(calledNums, rows[2:])
+	log.Printf("Answer to part 2: %d", part2Answer)
+
 }
 
 func part1(calledNums []int, rows []string) int {
@@ -48,6 +51,27 @@ func part1(calledNums []int, rows []string) int {
 	}
 
 	return part1Bingo(boards, calledNums)
+}
+
+func part2(calledNums []int, rows []string) int {
+	var boardRows []string
+	for _, r := range rows {
+		if r != "" {
+			boardRows = append(boardRows, r)
+		}
+	}
+
+	var boardStrings [][]string
+	for i := 0; i < len(boardRows)-1; i += 5 {
+		boardStrings = append(boardStrings, boardRows[i:i+5])
+	}
+
+	var boards []board
+	for _, b := range boardStrings {
+		boards = append(boards, stringsToBoard(b))
+	}
+
+	return part2Bingo(boards, calledNums)
 }
 
 type board struct {
@@ -132,6 +156,70 @@ func part1Bingo(boards []board, calledNumbers []int) int {
 					return winningNum * sumNotCompleted
 				}
 			}
+		}
+	}
+
+	return 0
+}
+
+func part2Bingo(boards []board, calledNumbers []int) int {
+	completedBoards := make([]bool, len(boards))
+	finalBoardIndex := 0
+	finalLoop := false
+	for _, n := range calledNumbers {
+		for l, b := range boards {
+			for k, r := range b.rows {
+				var completedRowCount int
+				for j, i := range r {
+					if i.value == n {
+						i.completed = true
+					}
+					if i.completed {
+						completedRowCount++
+					}
+					r[j] = i
+				}
+				b.rows[k] = r
+				if completedRowCount == 5 {
+					completedBoards[l] = true
+				}
+			}
+
+			for k, c := range b.columns {
+				var completedColCount int
+				for j, i := range c {
+					if i.value == n {
+						i.completed = true
+					}
+					if i.completed {
+						completedColCount++
+					}
+					c[j] = i
+				}
+				b.columns[k] = c
+				if completedColCount == 5 {
+					completedBoards[l] = true
+				}
+			}
+		}
+
+		if finalLoop {
+			winningNum := n
+			sumNotCompleted := sumUnmarked(boards[finalBoardIndex])
+			return winningNum * sumNotCompleted
+		}
+
+		notCompletedCount := 0
+		index := 0
+		for i, completed := range completedBoards {
+			if !completed {
+				notCompletedCount++
+				index = i
+			}
+		}
+		if notCompletedCount == 1 {
+			finalBoardIndex = index
+			finalLoop = true
 		}
 	}
 
