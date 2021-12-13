@@ -23,6 +23,9 @@ func main() {
 
 	part1Answer := part1(ints)
 	log.Println("Answer for part 1: ", part1Answer)
+
+	part2Answer := part2(ints)
+	log.Println("Answer for part 2: ", part2Answer)
 }
 
 func part1(in []int) int {
@@ -30,12 +33,25 @@ func part1(in []int) int {
 
 	minFuel := 10000000 // Some large number
 	for i := min; i <= max; i++ {
-		fuel := fuelUsed(in, i)
+		fuel := fuelUsedPart1(in, i)
 		if fuel < minFuel {
 			minFuel = fuel
 		}
 	}
 
+	return minFuel
+}
+
+func part2(in []int) int {
+	min, max := minMax(in)
+
+	minFuel := 10000000000000 // Some even larger number
+	for i := min; i <= max; i++ {
+		fuel := fuelUsedPart2(in, i)
+		if fuel < minFuel {
+			minFuel = fuel
+		}
+	}
 	return minFuel
 }
 
@@ -54,11 +70,22 @@ func minMax(in []int) (int, int) {
 	return min, max
 }
 
-func fuelUsed(in []int, moveTo int) int {
+func fuelUsedPart1(in []int, moveTo int) int {
 	fuel := 0
 	for i := range in {
 		d := absDiff(in[i], moveTo)
 		fuel += d
+	}
+	return fuel
+}
+
+func fuelUsedPart2(in []int, moveTo int) int {
+	fuel := 0
+	for i := range in {
+		d := absDiff(in[i], moveTo)
+		for m := 1; m <= d; m++ {
+			fuel += m
+		}
 	}
 	return fuel
 }
